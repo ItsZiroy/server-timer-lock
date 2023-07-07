@@ -1,0 +1,27 @@
+opening_hours:
+  use: false
+  monday:
+    - open: "18:00"
+      close: "23:00"
+  tuesday:
+    - open: "18:00"
+      close: "23:00"
+  wednesday:
+    - open: "18:00"
+      close: "23:00"
+  thursday:
+    - open: "18:00"
+      close: "23:00"
+  friday:
+    - open: "14:00"
+      close: "00:00"
+  saturday:
+    - open: "00:00"
+      close: "02:00"
+    - open: "12:00"
+      close: "00:00"
+  sunday:
+    - open: "00:00"
+      close: "02:00"
+    - open: "12:00"
+      close: "23:00"

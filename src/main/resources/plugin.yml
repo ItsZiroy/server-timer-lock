@@ -1,0 +1,4 @@
+name: server-time-lock
+version: '${version}'
+main: com.itsziroy.servertimelock.ServerTimeLockPlugin
+api-version: '1.20'
