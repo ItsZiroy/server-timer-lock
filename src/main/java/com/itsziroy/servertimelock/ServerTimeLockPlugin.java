@@ -1,8 +1,14 @@
 package com.itsziroy.servertimelock;
 
+import com.itsziroy.bukkitredis.BukkitRedisPlugin;
+import com.itsziroy.servertimelock.events.ServerLockEvent;
+import com.itsziroy.servertimelock.events.ServerUnlockEvent;
 import com.itsziroy.servertimelock.exceptions.ConfigurationException;
 import com.itsziroy.servertimelock.jobs.CheckServerUptime;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -11,9 +17,9 @@ import java.util.logging.Level;
 
 public final class ServerTimeLockPlugin extends JavaPlugin {
 
-    private boolean locked = false;
+    private boolean locked = true;
 
-
+    private BukkitRedisPlugin bukkitRedis;
 
     private final HashMap<Integer, List<OpeningHours>> openingTimes = new HashMap<>();
     @Override
@@ -29,6 +35,12 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
 
         checkServerUptimeJob.runTaskTimerAsynchronously(this,0, checkServerUptimeJob.getTickrate());
 
+        BukkitRedisPlugin bukkitRedis = (BukkitRedisPlugin) Bukkit.getPluginManager().getPlugin("bukkit-redis");
+        if (bukkitRedis != null) {
+            getLogger().info("BukkitRedis extenstion loaded.");
+            this.bukkitRedis = bukkitRedis;
+
+        }
     }
 
     @Override
@@ -41,6 +53,13 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
     }
 
     public void setLocked(boolean locked) {
+        if(locked != this.locked && bukkitRedis != null) {
+            if(locked) {
+                bukkitRedis.getMessanger().send(new ServerLockEvent());
+            } else {
+                bukkitRedis.getMessanger().send(new ServerUnlockEvent());
+            }
+        }
         this.locked = locked;
     }
 

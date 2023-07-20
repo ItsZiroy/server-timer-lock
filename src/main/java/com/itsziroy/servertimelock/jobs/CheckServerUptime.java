@@ -17,39 +17,31 @@ public class CheckServerUptime extends Job {
     }
 
     public CheckServerUptime(ServerTimeLockPlugin plugin) {
-        super(plugin, 300);
+        super(plugin, 20);
 
     }
 
     @Override
     public void run() {
-        plugin.getLogger().log(Level.INFO, "Run Server Update");
+        plugin.getLogger().log(Level.FINEST, "Run Server Update");
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        plugin.getLogger().log(Level.INFO, String.valueOf(day));
-        plugin.getLogger().log(Level.INFO, String.valueOf(hour));
-        plugin.getLogger().log(Level.INFO, String.valueOf(minute));
-
         HourMinute currentTime = new HourMinute(hour, minute);
 
         List<OpeningHours> openingHoursForDay = plugin.getOpeningTimes().get(day);
 
-        plugin.setLocked(true);
+        boolean locked = true;
 
         for(OpeningHours openingHours: openingHoursForDay) {
-            plugin.getLogger().log(Level.INFO, "Open:"+ String.valueOf(openingHours.open()));
-            plugin.getLogger().log(Level.INFO, "Current:"+ String.valueOf(currentTime));
-            plugin.getLogger().log(Level.INFO, "Close:"+ String.valueOf(openingHours.close()));
-
-
             if(currentTime.afterEqual(openingHours.open()) && currentTime.before(openingHours.close())) {
-                plugin.setLocked(false);
+                locked = false;
             }
         }
-        plugin.getLogger().log(Level.INFO, "" + plugin.isLocked());
+        plugin.setLocked(locked);
+        plugin.getLogger().log(Level.FINEST, "Server is currently locked: " + plugin.isLocked());
 
        /* if (previousOpeningHours.close().before(previousOpeningHours.open())) {
             // Current time is before closing hours
