@@ -25,3 +25,6 @@ opening_hours:
       close: "02:00"
     - open: "12:00"
       close: "23:00"
+remaining_uptime_intervals:
+  redis: 10
+  mc:

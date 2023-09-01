@@ -3,9 +3,9 @@ package com.itsziroy.servertimelock.jobs;
 import com.itsziroy.servertimelock.HourMinute;
 import com.itsziroy.servertimelock.OpeningHours;
 import com.itsziroy.servertimelock.ServerTimeLockPlugin;
+import com.itsziroy.servertimelock.events.ServerRemainingUptimeEvent;
 import org.bukkit.entity.Player;
 
-import java.time.DayOfWeek;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,6 +37,16 @@ public class CheckServerUptime extends Job {
 
         for(OpeningHours openingHours: openingHoursForDay) {
             if(currentTime.afterEqual(openingHours.open()) && currentTime.before(openingHours.close())) {
+                // Setting remaining uptime of server
+                HourMinute latestClosingTime = findLatestClosingTime(openingHours.close(), openingHoursForDay, day);
+                long timeUntilClose = calculateTimeUntilClose(currentTime, latestClosingTime);
+                plugin.getLogger().finest("Latest closing time: "+ latestClosingTime);
+                if(ServerRemainingUptimeEvent.shouldSend(plugin.getConfig().getInt("remaining_uptime_intervals.redis"))) {
+                    plugin.getRedis().getMessanger().send(new ServerRemainingUptimeEvent(timeUntilClose));
+                }
+                plugin.getLogger().finest("Time until close: " + timeUntilClose);
+                plugin.setRemainingTime(timeUntilClose);
+
                 locked = false;
             }
         }
@@ -92,7 +102,39 @@ public class CheckServerUptime extends Job {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 player.kickPlayer("The Server has closed.");
             }
-
         }
+    }
+
+    private HourMinute findLatestClosingTime(HourMinute hourMinute, List<OpeningHours> openingHoursList, int day) {
+        if(hourMinute.equals(24, 0)) {
+            hourMinute = new HourMinute(0,0);
+        }
+        if(hourMinute.equals(0,0)) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_WEEK, day);
+            calendar.add(Calendar.DAY_OF_WEEK, 1);
+            openingHoursList = plugin.getOpeningTimes().get(calendar.get(Calendar.DAY_OF_WEEK));
+            day++;
+        }
+        for(OpeningHours openingHours: openingHoursList) {
+           if(openingHours.open().equals(hourMinute)) {
+               return findLatestClosingTime(openingHours.close(), openingHoursList, day);
+           }
+        }
+        return hourMinute;
+    }
+
+    private long calculateTimeUntilClose(HourMinute currentTime, HourMinute closingTime) {
+        Calendar closingCalendar = Calendar.getInstance();
+        // closing time is next day
+        if(currentTime.after(closingTime)) {
+            closingCalendar.add(Calendar.DATE, 1);
+        }
+        closingCalendar.set(Calendar.HOUR, closingTime.hour());
+        closingCalendar.set(Calendar.MINUTE, closingTime.minute());
+        closingCalendar.set(Calendar.SECOND, 0);
+        closingCalendar.set(Calendar.MILLISECOND, 0);
+
+        return (closingCalendar.getTimeInMillis() - Calendar.getInstance().getTimeInMillis()) / 1000;
     }
 }

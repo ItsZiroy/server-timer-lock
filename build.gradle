@@ -15,6 +15,9 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven {
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+    }
     flatDir {
         dirs '../bukkit-redis/build/libs'
     }
@@ -22,6 +25,7 @@ repositories {
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT"
+    compileOnly 'me.clip:placeholderapi:2.11.3'
     implementation "com.itsziroy:bukkit-redis:1.0-SNAPSHOT"
 }
 

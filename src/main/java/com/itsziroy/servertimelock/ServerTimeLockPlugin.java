@@ -19,6 +19,8 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
 
     private boolean locked = true;
 
+    private long remainingTime = 0;
+
     private BukkitRedisPlugin bukkitRedis;
 
     private final HashMap<Integer, List<OpeningHours>> openingTimes = new HashMap<>();
@@ -28,6 +30,8 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
         registerConfig();
 
         FileConfiguration config = this.getConfig();
+
+        getLogger().info(getLogger().getLevel().toString());
 
         registerOpeningHours(config);
 
@@ -105,5 +109,17 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
 
     public HashMap<Integer, List<OpeningHours>> getOpeningTimes() {
         return openingTimes;
+    }
+
+    public BukkitRedisPlugin getRedis() {
+        return bukkitRedis;
+    }
+
+    public long getRemainingTime() {
+        return remainingTime;
+    }
+
+    public void setRemainingTime(long remainingTime) {
+        this.remainingTime = remainingTime;
     }
 }
