@@ -5,6 +5,7 @@ import com.itsziroy.servertimelock.events.ServerLockEvent;
 import com.itsziroy.servertimelock.events.ServerUnlockEvent;
 import com.itsziroy.servertimelock.exceptions.ConfigurationException;
 import com.itsziroy.servertimelock.jobs.CheckServerUptime;
+import com.itsziroy.servertimelock.listeners.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -28,6 +29,8 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         registerConfig();
+
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
         FileConfiguration config = this.getConfig();
 

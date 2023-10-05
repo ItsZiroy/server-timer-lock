@@ -4,6 +4,7 @@ import com.itsziroy.servertimelock.HourMinute;
 import com.itsziroy.servertimelock.OpeningHours;
 import com.itsziroy.servertimelock.ServerTimeLockPlugin;
 import com.itsziroy.servertimelock.events.ServerRemainingUptimeEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Calendar;
@@ -99,9 +100,11 @@ public class CheckServerUptime extends Job {
 
     private void kickPlayersOrNot() {
         if (plugin.isLocked()) {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.kickPlayer("The Server has closed.");
-            }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    player.kickPlayer("The Server has closed.");
+                }
+            });
         }
     }
 
