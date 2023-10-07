@@ -4,7 +4,7 @@ import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalTime;
+import java.util.concurrent.TimeUnit;
 
 public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
@@ -37,8 +37,14 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, String params) {
         if(params.equalsIgnoreCase("remaining_time")){
-            LocalTime timeOfDay = LocalTime.ofSecondOfDay(plugin.getRemainingTime());
-            return timeOfDay.toString();
+            long remainingTime = plugin.getRemainingTime();
+            int day = (int) TimeUnit.SECONDS.toDays(remainingTime);
+            long hours = TimeUnit.SECONDS.toHours(remainingTime) - (day * 24L);
+            long minute = TimeUnit.SECONDS.toMinutes(remainingTime) -
+                    (TimeUnit.SECONDS.toHours(remainingTime)* 60);
+            long second = TimeUnit.SECONDS.toSeconds(remainingTime) -
+                    (TimeUnit.SECONDS.toMinutes(remainingTime) *60);
+            return day + ":" + hours + ":" + minute + ":" + second;
         }
 
         return null; // Placeholder is unknown by the Expansion

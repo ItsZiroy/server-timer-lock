@@ -118,6 +118,7 @@ public class CheckServerUptime extends Job {
             calendar.add(Calendar.DAY_OF_WEEK, 1);
             openingHoursListForCurrentDay = plugin.getOpeningTimes().get(calendar.get(Calendar.DAY_OF_WEEK));
             day++;
+            if(day == 8) day = 1;
         }
         for(OpeningHours openingHours: openingHoursListForCurrentDay) {
            if(openingHours.open().equals(currentClosingTime)) {
@@ -132,9 +133,11 @@ public class CheckServerUptime extends Job {
         Calendar closingCalendar = Calendar.getInstance();
 
         // closing time is next dayOfWeek
-
         currentCalendar.set(Calendar.HOUR, currentTime.hour());
         currentCalendar.set(Calendar.MINUTE, currentTime.minute());
+        if(closingTime.dayOfWeek() < Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+            closingCalendar.add(Calendar.WEEK_OF_YEAR, 1);
+        }
 
         closingCalendar.set(Calendar.DAY_OF_WEEK, closingTime.dayOfWeek());
         closingCalendar.set(Calendar.HOUR, closingTime.hourMinute().hour());
