@@ -8,8 +8,6 @@ import com.itsziroy.servertimelock.jobs.CheckServerUptime;
 import com.itsziroy.servertimelock.listeners.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -42,11 +40,16 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
 
         checkServerUptimeJob.runTaskTimerAsynchronously(this,0, checkServerUptimeJob.getTickrate());
 
-        BukkitRedisPlugin bukkitRedis = (BukkitRedisPlugin) Bukkit.getPluginManager().getPlugin("bukkit-redis");
+        BukkitRedisPlugin bukkitRedis = (BukkitRedisPlugin) Bukkit.getPluginManager().getPlugin("BukkitRedis");
         if (bukkitRedis != null) {
             getLogger().info("BukkitRedis extenstion loaded.");
             this.bukkitRedis = bukkitRedis;
+        }
 
+        // Small check to make sure that PlaceholderAPI is installed
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            getLogger().info("Hooked into Placeholder API.");
+            new PlaceholderAPIExpansion(this).register();
         }
     }
 

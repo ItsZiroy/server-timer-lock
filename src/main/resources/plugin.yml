@@ -1,7 +1,7 @@
-name: server-time-lock
+name: ServerTimeLock
 version: '${version}'
 main: com.itsziroy.servertimelock.ServerTimeLockPlugin
 api-version: '1.20'
 softdepend:
-  - bukkit-redis
+  - BukkitRedis
   - PlaceholderAPI

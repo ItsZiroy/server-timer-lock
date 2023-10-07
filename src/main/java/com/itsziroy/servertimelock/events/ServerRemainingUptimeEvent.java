@@ -8,13 +8,13 @@ import java.util.Calendar;
 public class ServerRemainingUptimeEvent extends Event {
 
     private static Calendar latestCall;
-    public long remainingTime;
+    public long remaining_time;
     public ServerRemainingUptimeEvent(long remainingTime) {
         super("server_remaining_uptime");
 
         latestCall = Calendar.getInstance();
 
-        this.remainingTime = remainingTime;
+        this.remaining_time = remainingTime;
     }
 
     public static boolean shouldSend(int interval) {
