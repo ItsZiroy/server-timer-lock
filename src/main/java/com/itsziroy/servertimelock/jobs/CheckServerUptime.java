@@ -4,12 +4,16 @@ import com.itsziroy.servertimelock.HourMinute;
 import com.itsziroy.servertimelock.OpeningHours;
 import com.itsziroy.servertimelock.ServerTimeLockPlugin;
 import com.itsziroy.servertimelock.events.ServerRemainingUptimeEvent;
+import com.itsziroy.servertimelock.utils.UptimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
+
+import static com.itsziroy.servertimelock.utils.UptimeUtils.calculateTimeUntilClose;
+import static com.itsziroy.servertimelock.utils.UptimeUtils.findLatestClosingTime;
 
 public class CheckServerUptime extends Job {
 
@@ -27,10 +31,8 @@ public class CheckServerUptime extends Job {
         plugin.getLogger().log(Level.FINEST, "Run Server Update");
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
 
-        HourMinute currentTime = new HourMinute(hour, minute);
+        HourMinute currentTime = UptimeUtils.getCurrentHourMinute();
 
         List<OpeningHours> openingHoursForDay = plugin.getOpeningTimes().get(day);
 
@@ -39,7 +41,7 @@ public class CheckServerUptime extends Job {
         for(OpeningHours openingHours: openingHoursForDay) {
             if(currentTime.afterEqual(openingHours.open()) && currentTime.before(openingHours.close())) {
                 // Setting remaining uptime of server
-                LatestClosingTimeReturn latestClosingTime = findLatestClosingTime(openingHours.close(), openingHoursForDay, day);
+                UptimeUtils.LatestClosingTimeReturn latestClosingTime = findLatestClosingTime(plugin, openingHours.close(), openingHoursForDay, day);
                 long timeUntilClose = calculateTimeUntilClose(currentTime, latestClosingTime);
 
                 if(ServerRemainingUptimeEvent.shouldSend(plugin.getConfig().getInt("remaining_uptime_intervals.redis"))) {
@@ -107,46 +109,4 @@ public class CheckServerUptime extends Job {
             });
         }
     }
-
-    private LatestClosingTimeReturn findLatestClosingTime(HourMinute currentClosingTime, List<OpeningHours> openingHoursListForCurrentDay, int day) {
-        if(currentClosingTime.equals(24, 0)) {
-            currentClosingTime = new HourMinute(0,0);
-        }
-        if(currentClosingTime.equals(0,0)) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.DAY_OF_WEEK, day);
-            calendar.add(Calendar.DAY_OF_WEEK, 1);
-            openingHoursListForCurrentDay = plugin.getOpeningTimes().get(calendar.get(Calendar.DAY_OF_WEEK));
-            day++;
-            if(day == 8) day = 1;
-        }
-        for(OpeningHours openingHours: openingHoursListForCurrentDay) {
-           if(openingHours.open().equals(currentClosingTime)) {
-               return findLatestClosingTime(openingHours.close(), openingHoursListForCurrentDay, day);
-           }
-        }
-        return new LatestClosingTimeReturn(currentClosingTime, day);
-    }
-
-    private long calculateTimeUntilClose(HourMinute currentTime, LatestClosingTimeReturn closingTime) {
-        Calendar currentCalendar = Calendar.getInstance();
-        Calendar closingCalendar = Calendar.getInstance();
-
-        // closing time is next dayOfWeek
-        currentCalendar.set(Calendar.HOUR, currentTime.hour());
-        currentCalendar.set(Calendar.MINUTE, currentTime.minute());
-        if(closingTime.dayOfWeek() < Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-            closingCalendar.add(Calendar.WEEK_OF_YEAR, 1);
-        }
-
-        closingCalendar.set(Calendar.DAY_OF_WEEK, closingTime.dayOfWeek());
-        closingCalendar.set(Calendar.HOUR, closingTime.hourMinute().hour());
-        closingCalendar.set(Calendar.MINUTE, closingTime.hourMinute().minute());
-        closingCalendar.set(Calendar.SECOND, 0);
-        closingCalendar.set(Calendar.MILLISECOND, 0);
-
-        return (closingCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis()) / 1000;
-    }
-
-    private record LatestClosingTimeReturn(HourMinute hourMinute, int dayOfWeek) {}
 }

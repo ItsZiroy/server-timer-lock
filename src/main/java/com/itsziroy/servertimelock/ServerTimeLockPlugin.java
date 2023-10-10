@@ -6,6 +6,7 @@ import com.itsziroy.servertimelock.events.ServerUnlockEvent;
 import com.itsziroy.servertimelock.exceptions.ConfigurationException;
 import com.itsziroy.servertimelock.jobs.CheckServerUptime;
 import com.itsziroy.servertimelock.listeners.PlayerListener;
+import com.itsziroy.servertimelock.utils.UptimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,8 +32,6 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
         FileConfiguration config = this.getConfig();
-
-        getLogger().info(getLogger().getLevel().toString());
 
         registerOpeningHours(config);
 
@@ -113,6 +112,79 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
         }
     }
 
+    public Calendar getNextOpeningTime() {
+        if(this.isLocked()) {
+            int currentDayOfWeek = UptimeUtils.getCurrentDayOfWeek();
+
+            HourMinute currentHourMinute = UptimeUtils.getCurrentHourMinute();
+
+            List<OpeningHours> openingHoursForDay = this.openingTimes.get(currentDayOfWeek);
+
+            for(OpeningHours openingHours: openingHoursForDay) {
+                if (openingHours.open().after(currentHourMinute)) {
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.DAY_OF_WEEK, currentDayOfWeek);
+                    calendar.set(Calendar.HOUR_OF_DAY, openingHours.open().hour());
+                    calendar.set(Calendar.MINUTE, openingHours.open().minute());
+
+
+                    return calendar;
+                }
+            }
+            int nextDay = currentDayOfWeek + 1;
+
+
+            Calendar calendar = Calendar.getInstance();
+            if(nextDay == 8) {
+                calendar.add(Calendar.WEEK_OF_YEAR, 1);
+                nextDay = 1;
+            }
+            OpeningHours openingHours = this.openingTimes.get(nextDay).get(0);
+
+            calendar.set(Calendar.DAY_OF_WEEK, nextDay);
+            calendar.set(Calendar.HOUR_OF_DAY, openingHours.open().hour());
+            calendar.set(Calendar.MINUTE, openingHours.open().minute());
+
+            return calendar;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get remaining Server close time in seconds.
+     * <p>
+     * Returns -1 if open.
+     *
+     * @return seconds
+     */
+    public long getRemainingCloseTime() {
+        Calendar currentTime = Calendar.getInstance();
+        Calendar nextOpeningTime = this.getNextOpeningTime();
+
+        if(nextOpeningTime == null) {
+            return -1;
+        }
+
+        return (nextOpeningTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000;
+    }
+
+    public OpeningHours getCurrentOpeningHours() {
+        int day = UptimeUtils.getCurrentDayOfWeek();
+
+        List<OpeningHours> openingHoursForDay = this.getOpeningTimes().get(day);
+
+        HourMinute currentTime = UptimeUtils.getCurrentHourMinute();
+
+        for(OpeningHours openingHours: openingHoursForDay) {
+            if(currentTime.afterEqual(openingHours.open()) && currentTime.before(openingHours.close())) {
+               return openingHours;
+            }
+        }
+        return null;
+    }
+
     public HashMap<Integer, List<OpeningHours>> getOpeningTimes() {
         return openingTimes;
     }
@@ -121,6 +193,13 @@ public final class ServerTimeLockPlugin extends JavaPlugin {
         return bukkitRedis;
     }
 
+    /**
+     * Get remaining Server opening time in seconds.
+     * <p>
+     * Returns -1 if open.
+     *
+     * @return seconds
+     */
     public long getRemainingTime() {
         return remainingTime;
     }
