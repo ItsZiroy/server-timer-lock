@@ -2,7 +2,7 @@ package com.itsziroy.servertimelock.jobs;
 
 import com.itsziroy.servertimelock.HourMinute;
 import com.itsziroy.servertimelock.OpeningHours;
-import com.itsziroy.servertimelock.ServerTimeLockPlugin;
+import com.itsziroy.servertimelock.ServerTimeLock;
 import com.itsziroy.servertimelock.events.ServerRemainingUptimeEvent;
 import com.itsziroy.servertimelock.utils.UptimeUtils;
 import org.bukkit.Bukkit;
@@ -18,10 +18,10 @@ import static com.itsziroy.servertimelock.utils.UptimeUtils.findLatestClosingTim
 public class CheckServerUptime extends Job {
 
     public static void main(String[] args) {
-        CheckServerUptime checkServerUptime = new CheckServerUptime(new ServerTimeLockPlugin());
+        CheckServerUptime checkServerUptime = new CheckServerUptime(new ServerTimeLock());
     }
 
-    public CheckServerUptime(ServerTimeLockPlugin plugin) {
+    public CheckServerUptime(ServerTimeLock plugin) {
         super(plugin, 20);
 
     }

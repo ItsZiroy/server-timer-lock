@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
-    private final ServerTimeLockPlugin plugin;
+    private final ServerTimeLock plugin;
 
-    public PlaceholderAPIExpansion(ServerTimeLockPlugin plugin) {
+    public PlaceholderAPIExpansion(ServerTimeLock plugin) {
         this.plugin = plugin;
     }
 

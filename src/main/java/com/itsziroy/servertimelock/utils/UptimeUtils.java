@@ -2,7 +2,7 @@ package com.itsziroy.servertimelock.utils;
 
 import com.itsziroy.servertimelock.HourMinute;
 import com.itsziroy.servertimelock.OpeningHours;
-import com.itsziroy.servertimelock.ServerTimeLockPlugin;
+import com.itsziroy.servertimelock.ServerTimeLock;
 
 import java.util.Calendar;
 import java.util.List;
@@ -23,7 +23,7 @@ public class UptimeUtils {
         return calendar.get(Calendar.DAY_OF_WEEK);
     }
 
-    public static LatestClosingTimeReturn findLatestClosingTime(ServerTimeLockPlugin plugin, HourMinute currentClosingTime, List<OpeningHours> openingHoursListForCurrentDay, int day) {
+    public static LatestClosingTimeReturn findLatestClosingTime(ServerTimeLock plugin, HourMinute currentClosingTime, List<OpeningHours> openingHoursListForCurrentDay, int day) {
         if(currentClosingTime.equals(24, 0)) {
             currentClosingTime = new HourMinute(0,0);
         }

@@ -15,7 +15,7 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-public final class ServerTimeLockPlugin extends JavaPlugin {
+public final class ServerTimeLock extends JavaPlugin {
 
     private boolean locked = true;
 
