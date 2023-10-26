@@ -1,6 +1,7 @@
 package com.itsziroy.servertimelock;
 
 import com.itsziroy.bukkitredis.BukkitRedisPlugin;
+import com.itsziroy.bukkitredis.events.player.PlayerEvent;
 import com.itsziroy.servertimelock.events.ServerLockEvent;
 import com.itsziroy.servertimelock.events.ServerUnlockEvent;
 import com.itsziroy.servertimelock.exceptions.ConfigurationException;
@@ -29,7 +30,9 @@ public final class ServerTimeLock extends JavaPlugin {
         // Plugin startup logic
         registerConfig();
 
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+
+        PlayerListener playerListener = new PlayerListener(this);
+        getServer().getPluginManager().registerEvents(playerListener, this);
 
         FileConfiguration config = this.getConfig();
 
@@ -43,6 +46,7 @@ public final class ServerTimeLock extends JavaPlugin {
         if (bukkitRedis != null) {
             getLogger().info("BukkitRedis extenstion loaded.");
             this.bukkitRedis = bukkitRedis;
+            this.bukkitRedis.eventManager().registerCallback(PlayerEvent.class, playerListener::onPlayerByPassClosed);
         }
 
         // Small check to make sure that PlaceholderAPI is installed

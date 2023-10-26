@@ -5,3 +5,14 @@ api-version: '1.20'
 softdepend:
   - BukkitRedis
   - PlaceholderAPI
+
+permissions:
+  servertimelock.*:
+    description: "All ServerTime permissions"
+  servertimelock.default:
+    description: "Default permission"
+    default: "op"
+  servertimelock.bypass.server_close:
+    description: "Bypass the server closing times"
+    default: "op"
+
