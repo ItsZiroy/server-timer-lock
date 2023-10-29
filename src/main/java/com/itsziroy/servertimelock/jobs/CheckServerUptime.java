@@ -2,6 +2,7 @@ package com.itsziroy.servertimelock.jobs;
 
 import com.itsziroy.servertimelock.HourMinute;
 import com.itsziroy.servertimelock.OpeningHours;
+import com.itsziroy.servertimelock.Permission;
 import com.itsziroy.servertimelock.ServerTimeLock;
 import com.itsziroy.servertimelock.events.ServerRemainingUptimeEvent;
 import com.itsziroy.servertimelock.utils.UptimeUtils;
@@ -104,7 +105,9 @@ public class CheckServerUptime extends Job {
         if (plugin.isLocked()) {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    player.kickPlayer("The Server has closed.");
+                    if(!player.hasPermission(Permission.BYPASS_SERVER_CLOSE)) {
+                        player.kickPlayer("The Server has closed.");
+                    }
                 }
             });
         }
