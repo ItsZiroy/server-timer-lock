@@ -44,6 +44,9 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
                     (TimeUnit.SECONDS.toHours(remainingTime)* 60);
             long second = TimeUnit.SECONDS.toSeconds(remainingTime) -
                     (TimeUnit.SECONDS.toMinutes(remainingTime) *60);
+            if(day == 0) {
+                return hours + ":" + minute + ":" + second;
+            }
             return day + ":" + hours + ":" + minute + ":" + second;
         }
 
