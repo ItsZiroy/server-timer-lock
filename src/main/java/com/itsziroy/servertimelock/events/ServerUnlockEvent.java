@@ -4,8 +4,9 @@ import com.itsziroy.bukkitredis.events.Event;
 
 public class ServerUnlockEvent extends Event {
 
-
-    public ServerUnlockEvent() {
+    public long remaining_open_time;
+    public ServerUnlockEvent(long remainingOpenTime) {
         super("server_unlock");
+        this.remaining_open_time = remainingOpenTime;
     }
 }

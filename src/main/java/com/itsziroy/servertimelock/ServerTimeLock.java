@@ -68,9 +68,9 @@ public final class ServerTimeLock extends JavaPlugin {
     public void setLocked(boolean locked) {
         if(locked != this.locked && bukkitRedis != null) {
             if(locked) {
-                bukkitRedis.getMessanger().send(new ServerLockEvent());
+                bukkitRedis.getMessanger().send(new ServerLockEvent(this.getRemainingCloseTime()));
             } else {
-                bukkitRedis.getMessanger().send(new ServerUnlockEvent());
+                bukkitRedis.getMessanger().send(new ServerUnlockEvent(this.getRemainingTime()));
             }
         }
         this.locked = locked;
@@ -154,6 +154,13 @@ public final class ServerTimeLock extends JavaPlugin {
         } else {
             return null;
         }
+    }
+
+    public Calendar getNextClosingTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MILLISECOND, (int) this.getRemainingTime());
+
+        return calendar;
     }
 
     /**
